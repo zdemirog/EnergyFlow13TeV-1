@@ -1,0 +1,590 @@
+########################PAKETI ALANA ALMAK ICIN######################
+Kurulumun twiki sayfalari:
+https://twiki.cern.ch/twiki/bin/viewauth/CMS/FSQCommonFW
+https://twiki.cern.ch/twiki/bin/viewauth/CMS/FSQCommonFW201504Jets
+
+
+Oncelikle github hesabina giris yapip https://github.com/hvanhaev/CommonFSQFramework  klasorunu alabilmek icin `FORK`e tiklamalisin. Daha sonra lxplus alanina almak icin asagidaki komutlari takip etmelisin.
+ 
+
+# optionally setup your architecture. Not needed in most cases
+cmsrel CMSSW_7_4_1_patch1
+cd CMSSW_7_4_1_patch1/src/
+cmsenv
+
+git cms-init # answer "No" if it wants to create a reference repo 
+git clone git@github.com:USERNAME/CommonFSQFramework.git
+scram b -j 4
+cmsenv
+
+USERNAME kismina github kullanici adi yazilacak. 
+
+
+Guncellemeleri almak icin ise;
+
+cd CMSSW_7_4_0/src/CommonFSQFramework
+git remote add CFFmain https://github.com/hvanhaev/CommonFSQFramework
+git fetch CFFmain
+git merge CFFmain/master
+scram b -j 4
+
+(daha fazlasi icin: https://twiki.cern.ch/twiki/bin/view/CMS/CFFSkims)
+
+####################################################################
+################CFF'te YENI BIR TEMPLATE OLUSTURMA##################
+####################################################################
+
+
+Analizde kullanılacak olan datasetlerini, CommonFSQFramework/Skim/python Klasöründe ds_Commissioning2015_MinBiasMCs13TeV.txt dosyasında tanımladık.
+
+
+######################### ds_Commissioning2015_MinBiasMCs13TeV.txt ##########################
+/MinimumBias/Commissioning2015-PromptReco-v1/RECO
+/MinBias_TuneMonash13_13TeV-pythia8/Spring14dr-castor_NoPileUp_POSTLS170_V6-v1/AODSIM
+/MinBias_TuneZ2star_13TeV_pythia6/Fall13dr-castor_tsg_NoPileUp_POSTLS162_V1-v1/AODSIM
+/MinBias_TuneCUETP8S1-HERAPDF_13TeV-pythia8/Spring14dr-castor_NoPileUp_POSTLS170_V6-v1/AODSIM
+#############################################################################################
+
+
+Daha sonra ayni klasor icinde (CommonFSQFramework/Skim/python), Template_Commissioning2015_MinBiasMCs13TeV.py dosyasini olusturduk (Bu dosyayi olustururken Template_RunIIWinter15GS.py  dosyasindan yararlandik.)
+Bu dosya icinde yaptigimiz degisikler asagidaki gibidir:
+1) anaType kismina datasetlerine uygun bir isim yazidik: (anaType="Commissioning2015_MinBiasMCs13TeV")
+2) dsFile kismina olusturdugumuz ds dosyasinin yolunu belirttik: (dsFile="CommonFSQFramework/Skim/python/ds_Commissioning2015_MinBiasMCs13TeV.txt")
+3) data'nin tanimini asagidaki gibi yaptik.
+def isData(ds):
+    realData = False
+    if "MinimumBias" in ds: realData = True
+    return realData
+4) JSON file /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Cosmics15 alanindan CommonFSQFramework/Skim/lumi alanina kopyalandi ve asagidaki gibi belirtildi:
+def json(ds):
+    realData = isData(ds)
+    if realData:
+        return "CommonFSQFramework/Skim/lumi/cosmics15_CRAFT_238443_239517_json.txt"
+    else:
+        return ""
+5) crab'a yollanacak is sayisi eger MinBias yani MC ise 100, data ise 470 olarak belirtildi. Bu kismi yaparken alanda bulunan diger template'lerde yazanlar incelenerek karar verildi.
+def crabJobs(ds):
+    dsName = name(ds)
+    if "MinBias" in dsName:
+        return 100
+    else:
+	return 470
+6) numberEvents kismi data icin hepsi alindi. MC icin bu sayiyi su sekilde bulundu:
+https://cms-pdmv.cern.ch/mcm/ sayfasindan "Request" kismindan "Output Dataset"e tiklandi. dataset'in ismi yazilip arama yapilir. Daha sonra "Select View"den Completed Events'e tiklanir orada cikan bilgiyi ekledik.
+def numEvents(ds):
+    evts = -1
+    
+    # list all datasets in ds_Commissioning2015_MinBiasMCs13TeV.txt file, get events from DAS
+    if "MinBias_TuneMonash13_13TeV-pythia8" in ds: evts = 9405342
+    if "MinBias_TuneCUETP8S1-HERAPDF_13TeV-pythia8" in ds: evts = 9677547
+    if "MinBias_TuneZ2star_13TeV_pythia6" in ds: evts = 9582912
+    
+    return evts
+
+7) Globag Tag kisminda ise; DAS sayfasindan dataset'i aratip Configs'i sectik. Orada var olan Global Tag'i kullandik. /MinBias_TuneZ2star_13TeV_pythia6/Fall13dr-castor_tsg_NoPileUp_POSTLS162_V1-v1/AODSIM ornegi icin bakiniz: https://cmsweb.cern.ch/das/request?input=config%20dataset%3D/MinBias_TuneZ2star_13TeV_pythia6/Fall13dr-castor_tsg_NoPileUp_POSTLS162_V1-v1/AODSIM&instance=prod/global&idx=0&limit=10
+
+veyahut https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions sayfasindan da bulunabilir.
+
+def GT(ds):
+    realData = isData(ds)
+    if realData:
+        return "GR_P_V50::All"
+    if "TuneZ2star" in ds: return "POSTLS162_V1::All"
+    else:
+	return "POSTLS170_V6::All"
+
+8) MC' ler icin Cross section bilgilerini 6.adimda anlatilan "Select View"den "Generator parameters" secildiginde bulunabiliyordu. Fakat Bizim kullandigimiz MC'lar icin bu bilgi yazili degildi, biz de AODSIM olani degil de GEN-SIM olanin cross-section bilgisini aldik.
+Bakiniz /MinBias_TuneMonash13_13TeV-pythia8/Fall13-POSTLS162_V1_castor-v1/GEN-SIM icin 
+https://cms-pdmv.cern.ch/mcm/requests?produce=%2FMinBias_TuneMonash13_13TeV-pythia8%2FFall13-POSTLS162_V1_castor-v1%2FGEN-SIM&page=0&shown=262271
+
+
+def XS(ds):
+    '''
+    Note: all cross sections given in pb
+    # http://iopscience.iop.org/0295-5075/96/2/21002
+    LHCtotal= 73.5 mili b
+
+    conversion factors cheatsheet:
+    nano = 10^-6 mili
+    nano = 10^-3 micro
+    nano = 10^3 pico
+    '''
+    # if real data return nothing, not needed here but keep for other Templates
+    realData = isData(ds)
+    if realData:
+        return -1
+
+    # list all datasets in ds_Commissioning2015_MinBiasMCs13TeV.txt
+    # Give all XS in pb
+    s = {}
+    s["MinBias_TuneMonash13_13TeV-pythia8"] = 78420000000.0 # from DAS - McM
+    s["MinBias_TuneCUETP8S1-HERAPDF_13TeV-pythia8"] = 78420000000.0
+    s["MinBias_TuneZ2star_13TeV_pythia6"] = 78260000000.0
+
+
+
+    dsName = name(ds)
+    if dsName in s:
+        return s[dsName]
+    else:
+        print "FIXME - XS missing for", dsName
+        print '    s["'+dsName+'"] = '
+    return -1
+
+
+
+
+Template dosyasinda yapilan bu degisikliklerden sonra lxplus'ta bulundugumuz yerde(CommonFSQFramework/Skim/python) asagidaki komutu calistirdik.
+importDS.py Template_Commissioning2015_MinBiasMCs13TeV.py -d 20150504
+
+Bu komutu calistirinca iki tane dosya olusuyor
+1- CommonFSQFramework/Skim/python/Samples_Commissioning2015_MinBiasMCs13TeV_20150504.py
+2- CommonFSQFramework/Skim/env/do_Commissioning2015_MinBiasMCs13TeV_20150504.sh
+
+
+
+
+########################################################################
+#########################CFF'E YENI OBJELER EKLEME######################
+########################################################################
+
+
+- CommonFSQFramework/Core/src ve CommonFSQFramework/Core/interface  klasorlerinde HFRecHitView.cc ve HFRecHitView.h dosyalari olusturuldu. Bunu yaparken varolan GenJetView.cc ve GenJetView.h dosyalari kopyalanarak degisiklikler yapildi. 
+- HFRecHitView.cc Dosyasinda HFRecHit collection tanimi ve vector doldurma islemi yapildi.
+- CommonFSQFramework/Core/python/HFRecHitView.py dosyasinda HFRecHitView miniView tanitimi, cut bilgileri, ve branchPrefix'in adinin tanimi yapildi.
+- CommonFSQFramework/Core/plugins/CFFTreeProducer.cc dosyasina da HFRecHitView.h ve HFRecHitView miniViewi tanimlandi.
+
+
+
+##########################################################################################
+#################/CommonFSQFramework/Core/src/HFRecHitView.cc#############################
+##########################################################################################
+
+
+#include "CommonFSQFramework/Core/interface/HFRecHitView.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+
+HFRecHitView::HFRecHitView(const edm::ParameterSet& iConfig, TTree * tree):
+EventViewBase(iConfig,  tree)
+{
+
+    registerVecFloat("energy", tree);
+    registerVecFloat("time", tree);
+    registerVecInt("ieta", tree);
+    registerVecInt("iphi", tree);
+    registerVecInt("depth", tree);
+    registerVecInt("bit0", tree);
+    registerVecInt("bit1", tree);
+
+
+    // fetch config data
+    m_maxEta = iConfig.getParameter<double>("maxEta");
+    m_minPt = iConfig.getParameter<double>("minPt");
+  
+
+}
+
+
+void HFRecHitView::fillSpecific(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+
+
+  
+     std::vector<edm::Handle<HFRecHitCollection> > colls;
+     iEvent.getManyByType(colls);
+     std::vector<edm::Handle<HFRecHitCollection> >::iterator i;
+     for (i=colls.begin(); i!=colls.end(); i++) {
+       
+       for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
+	 if (j->id().subdet() == HcalForward) {
+	   
+	   addToFVec("energy", j->energy());
+	   addToFVec("time", j->time());
+	   addToIVec("ieta", j->id().ieta());
+	   addToIVec("iphi", j->id().iphi());
+	   addToIVec("depth", j->id().depth());
+	   // HF Noise flag
+	   // https://twiki.cern.ch/twiki/bin/view/CMS/HcalRecHitFlagAssignments
+	   addToIVec("bit0", j->flagField(0,1));    // flag- HFLongShort
+	   addToIVec("bit1", j->flagField(1,1));    // flag- HFDigiTime
+	    }
+       }
+     }
+}
+
+
+############################################################################################
+############################################################################################
+#####################/CommonFSQFramework/Core/interface/HFRecHitView.h######################
+############################################################################################
+#ifndef HFRecHitView_h
+#define HFRecHitView_h
+
+#include "CommonFSQFramework/Core/interface/EventViewBase.h"
+// HCAL Rechit
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+
+
+class HFRecHitView: public EventViewBase{
+    public:
+       HFRecHitView(const edm::ParameterSet& ps, TTree * tree);
+
+    private:
+      virtual void fillSpecific(const edm::Event&, const edm::EventSetup&);
+      float m_maxEta; // 
+      float m_minPt;
+
+
+
+};
+#endif
+
+
+
+#################################################################################
+#################################################################################
+###############/CommonFSQFramework/Core/python/HFRecHitView.py################
+#################################################################################
+import FWCore.ParameterSet.Config as cms
+
+def get(todo):
+    defs = {}
+
+    # EnergyFlow
+    defs["HFRecHitView"]  = cms.PSet(
+        miniView = cms.string("HFRecHitView"),
+        branchPrefix = cms.untracked.string("HFRecHit"),
+        maxEta = cms.double(5),
+        minPt = cms.double(0.0),
+    )
+
+ 
+    # main function
+    ret = {}
+    for t in todo:
+        if t not in defs:
+            raise Exception("miniView def not known "+t)
+
+        ret[t] = defs[t]
+    return ret
+
+
+#########################################################################################
+#########################################################################################
+#######################/CommonFSQFramework/Core/plugins/CFFTreeProducer.cc###############
+#########################################################################################
+// -*- C++ -*-
+//
+// Package:    CFFTreeProducer
+// Class:      CFFTreeProducer
+// 
+/**\class CFFTreeProducer CFFTreeProducer.cc MNTriggerStudies/CFFTreeProducer/plugins/CFFTreeProducer.cc
+*/
+
+
+
+// system include files
+#include <memory>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "TTree.h"
+
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include <DataFormats/PatCandidates/interface/TriggerEvent.h>
+
+#include "CommonFSQFramework/Core/interface/EventIdData.h"
+#include "CommonFSQFramework/Core/interface/GenPartView.h"
+#include "CommonFSQFramework/Core/interface/GenJetView.h"
+#include "CommonFSQFramework/Core/interface/RecoTrackView.h"
+#include "CommonFSQFramework/Core/interface/VerticesView.h"
+
+#include "CommonFSQFramework/Core/interface/JetView.h"
+#include "CommonFSQFramework/Core/interface/TriggerResultsView.h"
+#include "CommonFSQFramework/Core/interface/GenericCandidateView.h"
+#include "CommonFSQFramework/Core/interface/HFRecHitView.h"
+//
+// class declaration
+//
+
+class CFFTreeProducer : public edm::EDAnalyzer {
+   public:
+      explicit CFFTreeProducer(const edm::ParameterSet&);
+      ~CFFTreeProducer();
+
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+
+   private:
+      virtual void beginJob();
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob();
+
+      TTree *m_tree;
+      std::vector<EventViewBase *> m_views;
+
+      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+
+      // ----------member data ---------------------------
+};
+
+//
+// constants, enums and typedefs
+//
+
+//
+// static data member definitions
+//
+
+//
+// constructors and destructor
+//
+CFFTreeProducer::CFFTreeProducer(const edm::ParameterSet& iConfig)
+
+{
+    edm::Service<TFileService> tFileService;
+    m_tree = tFileService->make<TTree>("data", "data");
+
+    std::vector< std::string > allParams = iConfig.getParameterNames();
+
+    std::set< std::string> prefixes;
+    for (size_t i = 0; i < allParams.size();++i){
+        std::string name = allParams.at(i);
+        if (name.find("@") != std::string::npos) continue; // remove some CMSSW artifacts
+
+        if (!iConfig.existsAs<edm::ParameterSet>(name)) {
+            throw "Parameter " + name + " is not a pset as expected";
+        }
+
+        edm::ParameterSet pset = iConfig.getParameter< edm::ParameterSet >(name);
+        if (!pset.existsAs<std::string>("miniView")){
+            throw "Provide miniView (tell me what miniView to create) in pset " +  name;
+        }
+        std::string miniViewType = pset.getParameter<std::string>("miniView");
+
+
+        if (!pset.existsAs<std::string>("branchPrefix", false)){
+            throw "Provide branchPrefix in pset " +  name;
+        }
+
+        std::string prefix = pset.getUntrackedParameter<std::string>("branchPrefix");
+        if (prefixes.count(prefix)!=0)
+            throw "Multiple prefixes (?) - "+prefix;
+
+        prefixes.insert(prefix);
+
+
+        if (miniViewType == "JetView") {
+            m_views.push_back(new JetView(pset, m_tree));
+        }
+        else if (miniViewType == "TriggerResultsView") {
+            m_views.push_back(new TriggerResultsView(pset, m_tree));
+        }
+        else if (miniViewType == "GenericCandidateView") {
+            m_views.push_back(new GenericCandidateView(pset, m_tree));
+        }
+        else if (miniViewType == "GenPartView") {
+            m_views.push_back(new GenPartView(pset, m_tree));
+        }
+	else if (miniViewType == "GenJetView") {
+	    m_views.push_back(new GenJetView(pset, m_tree));
+	}
+        else if (miniViewType == "RecoTrackView") {
+            m_views.push_back(new RecoTrackView(pset, m_tree));
+        }
+        else if (miniViewType == "VerticesView") {
+            m_views.push_back(new VerticesView(pset, m_tree));
+        }
+	else if (miniViewType == "HFRecHitView") {
+	  m_views.push_back(new HFRecHitView(pset, m_tree));
+	}
+        else {
+            throw "Miniview not known: "+ miniViewType;
+        }
+
+    }
+
+    // run/event number
+    m_views.push_back(new EventIdData(edm::ParameterSet(), m_tree));
+
+
+}
+
+CFFTreeProducer::~CFFTreeProducer() {}
+
+void
+CFFTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+
+    using namespace edm;
+    for (unsigned int i = 0; i < m_views.size(); ++i){
+        m_views[i]->fill(iEvent, iSetup);
+    }
+    m_tree->Fill();
+
+}
+
+
+// ------------ method called once each job just before starting event loop  ------------
+void 
+CFFTreeProducer::beginJob()
+{
+}
+
+// ------------ method called once each job just after ending the event loop  ------------
+void 
+CFFTreeProducer::endJob() 
+{
+}
+
+// ------------ method called when starting to processes a run  ------------
+/*
+void 
+CFFTreeProducer::beginRun(edm::Run const&, edm::EventSetup const&)
+{
+}
+*/
+
+// ------------ method called when ending the processing of a run  ------------
+/*
+void 
+CFFTreeProducer::endRun(edm::Run const&, edm::EventSetup const&)
+{
+}
+*/
+
+// ------------ method called when starting to processes a luminosity block  ------------
+/*
+void 
+CFFTreeProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+}
+*/
+
+// ------------ method called when ending the processing of a luminosity block  ------------
+/*
+void 
+CFFTreeProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+}
+*/
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void
+CFFTreeProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  //The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
+}
+
+
+
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(CFFTreeProducer);
+
+
+
+##########################################################################################
+##########################################################################################
+/CommonFSQFramework/Skim/config alanindayiz burada yeni bir klasor olusturup icine Skim/config/GenLevel/treemaker_GenLevel_74X.py dosyasina benzer bir python dosyasi olusturuldu(treemaker_HFRecHits_74X.py).
+
+Bu treemaker_HFRecHits_74X.py dosyasi /CommonFSQFramework/Core/python/HFRecHitView.py ile  /CommonFSQFramework/Core/python/customizePAT.py ve  /CommonFSQFramework/Core/plugins/CFFTreeProducer.cc dosylarini kullanarak calisiyor.
+
+treemaker_HFRecHits_74X.py dosyasi calistirilmadan once bazi setenv'ler yapildi.
+Calistirmak istedigimiz datasetine ait olan do_*.sh dosyasi calistirildi (Bu dosyalar /CommonFSQFramework/Skim/env alaninda bulunmaktadir. )
+Daha sonra asagidaki komut calistirildi.
+
+setenv TMFSampleName MinBias_TuneMonash13_13TeV-pythia8
+
+
+MinBias_TuneMonash13_13TeV-pythia8 yerine yazabilecegimiz diger adlara /CommonFSQFramework/Skim/python alaninda bulunan Sampes_*.py dosyasindan bulabiliriz. Ornegin data icin
+/Samples_Commissioning2015_MinBiasMCs13TeV_11052015.py dosyasinda
+
+sam["data_MinimumBias"]["name"]='data_MinimumBias'
+
+yazilmakta dolayisiyla data icin env yi su sekilde yapmamiz lazim.
+
+setenv TMFSampleName data_MinimumBias
+
+
+
+Daha sonra treemaker_HFRecHits_74X.py dosyasinin icine kullanmak istedigimiz root file'i yazip calistirinca trees.root dosyasi olustu. trees.root adi customizePAT.py dosyasinda tanimlanmis durumda.
+
+
+
+###########################################################################################
+###########################################################################################
+###########################Skim/config/EnergyFlow/treemaker_HFRecHits_74X.py ##############
+###########################################################################################
+
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("Treemaker")
+
+process.load("FWCore.MessageService.MessageLogger_cfi")
+
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
+
+# Source
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring(
+	'root://eoscms//eos/cms/store/data/Commissioning2015/MinimumBias/RECO/PromptReco-v1/000/240/924/00000/06D5C8C7-A0E9-E411-A116-02163E012891.root',
+        'root://eoscms//eos/cms/store/data/Commissioning2015/MinimumBias/RECO/PromptReco-v1/000/240/924/00000/10AD434D-A0E9-E411-AE28-02163E012226.root',
+        'root://eoscms//eos/cms/store/data/Commissioning2015/MinimumBias/RECO/PromptReco-v1/000/240/924/00000/4009FE4C-A0E9-E411-9B5F-02163E0124D5.root',
+        'root://eoscms//eos/cms/store/data/Commissioning2015/MinimumBias/RECO/PromptReco-v1/000/240/924/00000/627ED54C-A0E9-E411-A874-02163E011FA2.root',
+        'root://eoscms//eos/cms/store/data/Commissioning2015/MinimumBias/RECO/PromptReco-v1/000/240/924/00000/723E044E-A0E9-E411-A6DD-02163E011D01.root',
+        'root://eoscms//eos/cms/store/data/Commissioning2015/MinimumBias/RECO/PromptReco-v1/000/240/924/00000/7AEBD3C2-A1E9-E411-A6BB-02163E011D8E.root',
+        'root://eoscms//eos/cms/store/data/Commissioning2015/MinimumBias/RECO/PromptReco-v1/000/240/924/00000/7C73F9C3-A0E9-E411-9863-02163E0127EB.root',
+        'root://eoscms//eos/cms/store/data/Commissioning2015/MinimumBias/RECO/PromptReco-v1/000/240/924/00000/E4A94FF2-A0E9-E411-BE12-02163E01196A.root',
+	'root://eoscms//eos/cms/store/data/Commissioning2015/MinimumBias/RECO/PromptReco-v1/000/240/924/00000/E6FF9879-A0E9-E411-A14E-02163E012226.root'
+#'file:00ADED10-63F7-E311-AB96-003048F0EBBE.root'
+)
+)
+
+# Geometry and Detector Conditions
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
+process.load("Configuration.StandardSequences.MagneticField_cff")
+
+# Here starts the CFF specific part
+import CommonFSQFramework.Core.customizePAT
+process = CommonFSQFramework.Core.customizePAT.customize(process)
+
+# GT customization
+process = CommonFSQFramework.Core.customizePAT.customizeGT(process)
+
+# define treeproducer
+process.HFRecHitTree = cms.EDAnalyzer("CFFTreeProducer")
+import CommonFSQFramework.Core.HFRecHitView
+process.HFRecHitTree._Parameterizable__setParameters(CommonFSQFramework.Core.HFRecHitView.get(["HFRecHitView"]))
+
+# add paths
+process = CommonFSQFramework.Core.customizePAT.addTreeProducer(process, process.HFRecHitTree)
+
+
+
+
+
+#############################################################################################
+#############################################################################################
