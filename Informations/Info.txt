@@ -1,0 +1,79 @@
+You can find some usefull information in this text...
+
+ CFF (Common FSQ Framework)
+ 
+ ###########To use CFF###########################
+ Kurulumun twiki sayfalari:
+https://twiki.cern.ch/twiki/bin/viewauth/CMS/FSQCommonFW
+https://twiki.cern.ch/twiki/bin/viewauth/CMS/FSQCommonFW201504Jets
+
+
+Oncelikle github hesabina giris yapip https://github.com/hvanhaev/CommonFSQFramework  klasorunu alabilmek icin `FORK`e tiklamalisin. Daha sonra lxplus alanina almak icin asagidaki komutlari takip etmelisin.
+ 
+
+# optionally setup your architecture. Not needed in most cases
+cmsrel CMSSW_7_4_1_patch1
+cd CMSSW_7_4_1_patch1/src/
+cmsenv
+
+git cms-init # answer "No" if it wants to create a reference repo 
+git clone git@github.com:USERNAME/CommonFSQFramework.git
+scram b -j 4
+cmsenv
+
+USERNAME kismina github kullanici adi yazilacak. 
+
+
+Guncellemeleri almak icin ise;
+
+cd CMSSW_7_4_0/src/CommonFSQFramework
+git remote add CFFmain https://github.com/hvanhaev/CommonFSQFramework
+git fetch CFFmain
+git merge CFFmain/master
+scram b -j 4
+
+(daha fazlasi icin: https://twiki.cern.ch/twiki/bin/view/CMS/CFFSkims)
+
+
+
+ #############To Prepared ds and Template in CFF##############
+ 
+ We used CFF (Common Framework FSQ) during analysis to produce the skims.
+###To prepared the Template#####
+find the siutable anaType's name as to data's name
+create the dsFile (ds***.txt) and define the suitable name as to data
+input the path of dsFile in Template*.py
+describe the real data and correct the def isData(ds): section in Template*.py
+find the JSON file where /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/ for data and copy it to lumi dirctory in CommonFSQFramework /Skim/lumi and edit the function ( def json(ds): ) in Template*.py
+define the number of job that will be send to CRAB, 100 for MC and 470 for data, After that arrange the function (def crabJobs (ds):) in Template*.py
+Part of the number of events was taken -1 (meaning all events) for the data, You shuold look at the link ( https://cms-pdmv.cern.ch/mcm/ ) for MC and You Should define the number of events for each MC samples. And must be arranged the function (def numEvents(ds):)
+it was looked the GT (Global tag) for each data sets (DAS : https://cmsweb.cern.ch/das/) search the data in DAS and click the config section and find the GT. must be arrange the function ( def GT(ds): ) in Template*.py
+Should be defined the XS (Cross Section) for MC (You can find in this link:https://cms-pdmv.cern.ch/mcm/ ) click "SelectView" and select the Generator Parameters. Sometimes you can not find the XS in AOD format data sets than you can look the GEN-SIM format data sets or other parents.
+If you exactly prepare the Template*.py you can run the this pyton file using following command.
+importDS.py Template*.py -d date (date example : 20150515 year/mouth/day OR something whatever you want)
+When you run this command it will be create two script like python and .sh
+CommonFSQFramework /Skim/python/Samples_*(anaType'sname+is given date's name ).py
+CommonFSQFramework /Skim/env/do_*(anaType'sname+is given date's name ).sh
+ 
+ 
+ LUMI CALCULATION
+ 
+ First of all, you need to install some packages to use the command(brilcalc). you can find the page in below.
+http://cms-service-lumi.web.cern.ch/cms-service-lumi/brilwsdoc.html
+After that you should open cern account in lxplus than should go any CMSSW version. You don’t forget" cmsenv"
+You can find the command how can use this special command(brilcalc) in lxplus in below
+brilcalc lumi -i YOURJSON -n 0.962 ### 0.962 for pure calculation of lumi a number
+Firstly you must define the JSON file that you use. you can find the JSON files where :
+/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/
+Version 0.8 : brilcalc lumi -i YOURJSON -n 0.962 (you can use like this)
+Verison 0.9 : brilcalc lumi --normtag /afs/cern.ch/user/c/cmsbril/public/normtag_json/OfflineNormtagV1.json -i YOURJSON
+You can find a few % change in integrated luminosity when going from 0.8 to 0.9 version.
+Run 247324 and 247623 still with v0.8 but all others update with v0.9
+Calculate effective luminosity:
+You should divede output from brilcalc with L1 x HLT prescales.
+Exception for run 247324
+8 colliding bunches, 1 (first) "fat" bunch (higher pile-up)
+L1 prescale = 2 : same 4 bunches get recorded every time
+get integrated luminosity per bunch crossing, add all LS
+divide by HLT prescale only
+
