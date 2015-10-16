@@ -7,24 +7,21 @@ You can find some usefull information in this text...
 https://twiki.cern.ch/twiki/bin/viewauth/CMS/FSQCommonFW
 https://twiki.cern.ch/twiki/bin/viewauth/CMS/FSQCommonFW201504Jets
 
-
-Oncelikle github hesabina giris yapip https://github.com/hvanhaev/CommonFSQFramework  klasorunu alabilmek icin `FORK`e tiklamalisin. Daha sonra lxplus alanina almak icin asagidaki komutlari takip etmelisin.
- 
-
-# optionally setup your architecture. Not needed in most cases
-cmsrel CMSSW_7_4_1_patch1
+##############How do you get CFF?###############
+You should open your github account.
+click the link https://github.com/hvanhaev/CommonFSQFramework than you will see fork button click it. this process is done
+you should go lxplus area and follow the commands in below
+cmsrel CMSSW_7_4_1_patch1 (if you want you can change the CMSSW version.)
 cd CMSSW_7_4_1_patch1/src/
 cmsenv
-
-git cms-init # answer "No" if it wants to create a reference repo 
-git clone git@github.com:USERNAME/CommonFSQFramework.git
+git cms-init # answer "No" if it wants to create a reference repo
+git clone git@github.com:USERNAME/CommonFSQFramework.git (USERNAME=Github user name)
 scram b -j 4
 cmsenv
 
-USERNAME kismina github kullanici adi yazilacak. 
+Note:It will be written Github username instead of USERNAME
 
-
-Guncellemeleri almak icin ise;
+*******If you want to get updated CFF*********
 
 cd CMSSW_7_4_0/src/CommonFSQFramework
 git remote add CFFmain https://github.com/hvanhaev/CommonFSQFramework
@@ -32,7 +29,7 @@ git fetch CFFmain
 git merge CFFmain/master
 scram b -j 4
 
-(daha fazlasi icin: https://twiki.cern.ch/twiki/bin/view/CMS/CFFSkims)
+(More info: https://twiki.cern.ch/twiki/bin/view/CMS/CFFSkims)
 
 
 
@@ -76,4 +73,18 @@ Exception for run 247324
 L1 prescale = 2 : same 4 bunches get recorded every time
 get integrated luminosity per bunch crossing, add all LS
 divide by HLT prescale only
+
+*********USING EOS AREA*********
+Firstl, you must have the EOS area After that You can use some commands in below
+
+If you want to look your eos area:
+eos ls -lhtr /eos/cms/store/user/USERNAME/ (i.e higgs313 is mine)
+
+If you want to create a directory 
+xrd eoscms mkdir /eos/cms/store/user/higgs313/DIRECTORY NAME
+
+If you want to erase something
+eos rm /eos/cms/store/user/higgs313/ERASENAME
+
+
 
