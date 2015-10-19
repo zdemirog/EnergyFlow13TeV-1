@@ -53,7 +53,7 @@ CommonFSQFramework /Skim/python/Samples_*(anaType'sname+is given date's name ).p
 CommonFSQFramework /Skim/env/do_*(anaType'sname+is given date's name ).sh
  
  
- LUMI CALCULATION
+ *******LUMI CALCULATION*************
  
  First of all, you need to install some packages to use the command(brilcalc). you can find the page in below.
 http://cms-service-lumi.web.cern.ch/cms-service-lumi/brilwsdoc.html
@@ -85,6 +85,19 @@ xrd eoscms mkdir /eos/cms/store/user/higgs313/DIRECTORY NAME
 
 If you want to erase something
 eos rm /eos/cms/store/user/higgs313/ERASENAME
+
+if you want to get partial data which had been taken from CFF
+You should use a code like copy_from_EOS.sh. you can find this code in Codes section at github
+if you want to run this command you must use "./" and script name
+
+if you want to merge some roots than you can use a code like MergeFiles_Herwig2015AMagnetOff.py
+you can find this code in codes section in github. if you want to run this code you must use "python"
+command.
+
+
+
+
+
 
 
 
