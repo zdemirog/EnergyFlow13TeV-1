@@ -5,7 +5,7 @@
 # to check the status of files use the command: bjobs
 #############################################################
 
-cd /afs/cern.ch/work/z/zdemirog/CFF_04June/CMSSW_7_5_0_pre1_ROOT5/src/EnergyFlow13TeV/cpp_macro/HFAND_EventSelectionwithJINSTbinning/Run255029_3p8Tesla
+cd /afs/cern.ch/work/z/zdemirog/CFF_04June/CMSSW_7_5_0_pre1_ROOT5/src/EnergyFlow13TeV/cpp_macro/HFAND_EventSelectionwithJINSTbinning/Run255019_3p8Tesla
 cmsenv
-root -l EnergyFlow_DetLevel_HFAND_ZeroBias1_r255029_TreeProducer_with4p5GeV.C++
+root -l EnergyFlow_DetLevel_HFAND_ZeroBias1_r255019_TreeProducer_with3p6GeV.C++
 

@@ -35,7 +35,7 @@
 #include "Math/Vector3D.h"
 #include "Math/Vector4D.h"
 #include "tdrstyle_mod14.C"
-#include "Run2015C_ZeroBias1_3p8.h"
+#include "Run2015B_ZeroBias1_3p8.h"
 using namespace std;
 using namespace ROOT::Math;
 int getBin(float x, float boundaries[],int b);
@@ -49,7 +49,8 @@ int getBin(float x, float boundaries[],int b);
 
 
 //void  EnergyFlow_DetLevel_TreeProducer(int FileNumber=0)
-void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r255019_TreeProducer_with5p5GeV()
+void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r251721_TreeProducer_with3p6GeV()
+
 {
   gROOT->ProcessLine("#include <vector>"); 
   //gROOT->ProcessLine(".L MC.C+");
@@ -118,7 +119,7 @@ void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r255019_TreeProducer_with5p5GeV()
   for (int f=0; f<ftyp; f++){
     //for (int f=FileNumber; f<FileNumber+1; f++){
     //----------------------Creating tree for output--------------//
-    sprintf(title,"EFlow_DetLevel_%s_HFAND_r255019_tree_3p8Tesla_with5p5GeV.root",readfilesname.c_str());
+    sprintf(title,"EFlow_DetLevel_%s_HFAND_r251721_tree_3p8Tesla_with3p6GeV.root",readfilesname.c_str());
     fOutFile[f]= new TFile(title,"RECREATE");
     //sprintf(title,"%s",fname.c_str());
     sprintf(title,"EFlow");
@@ -297,7 +298,7 @@ void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r255019_TreeProducer_with5p5GeV()
       // ----------------------- Cut-------------------------//
       lumimin =97;
       lumimax =311;
-      emin = 5.5;
+      emin = 3.6;
       NoiseCut = 4.;
         Etabnd = 5.205;//Max Eta for CMS
         //cmseta = 6.6;//Max Eta for CMS
@@ -394,7 +395,7 @@ void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r255019_TreeProducer_with5p5GeV()
 	LumiCut=false;
 	bxCut=false;
 			    
-	if (filetype =="DATA" && run==255019) RunCut=true;
+	if (filetype =="DATA" && run==251721) RunCut=true;
 	if(filetype =="MC") RunCut =true;// for MC
 		
 	// ----------------------- fat bunch ------------------//
@@ -405,7 +406,7 @@ void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r255019_TreeProducer_with5p5GeV()
 		
 	if (filetype =="DATA")LumiCut=(lumi>=lumimin &&lumi<lumimax);
 	else LumiCut=true;// for MC
-		
+	//cout<<"lumi: "<< lumi <<endl;
 	//if(LumiCut && RunCut ){
 	if(RunCut){
 		    

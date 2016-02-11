@@ -35,7 +35,7 @@
 #include "Math/Vector3D.h"
 #include "Math/Vector4D.h"
 #include "tdrstyle_mod14.C"
-#include "ReggeGribovPartonMC_13TeV_QGSJetII_3p8Tesla.h"
+#include "Run2015C_ZeroBias1_3p8.h"
 using namespace std;
 using namespace ROOT::Math;
 int getBin(float x, float boundaries[],int b);
@@ -49,7 +49,7 @@ int getBin(float x, float boundaries[],int b);
 
 
 //void  EnergyFlow_DetLevel_TreeProducer(int FileNumber=0)
-void  EnergyFlow_DetLevel_TreeProducer_HFAND_QGSJetII_3p8Tesla()
+void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r254989_TreeProducer_with4p4GeV()
 
 {
   gROOT->ProcessLine("#include <vector>"); 
@@ -119,7 +119,7 @@ void  EnergyFlow_DetLevel_TreeProducer_HFAND_QGSJetII_3p8Tesla()
   for (int f=0; f<ftyp; f++){
     //for (int f=FileNumber; f<FileNumber+1; f++){
     //----------------------Creating tree for output--------------//
-    sprintf(title,"EFlow_DetLevel_%s_HFAND_tree_3p8Tesla_with5GeV.root",readfilesname.c_str());
+    sprintf(title,"EFlow_DetLevel_%s_HFAND_r254989_tree_3p8Tesla_with4p4GeV.root",readfilesname.c_str());
     fOutFile[f]= new TFile(title,"RECREATE");
     //sprintf(title,"%s",fname.c_str());
     sprintf(title,"EFlow");
@@ -298,16 +298,16 @@ void  EnergyFlow_DetLevel_TreeProducer_HFAND_QGSJetII_3p8Tesla()
       // ----------------------- Cut-------------------------//
       lumimin =97;
       lumimax =311;
-      emin = 5.;
+      emin = 4.4;
       NoiseCut = 4.;
-      Etabnd = 5.205;//Max Eta for CMS
-      //cmseta = 6.6;//Max Eta for CMS
-      etamin =3.152;
-      //etamax =4.889;//event select
-      etamaxMinus =-3.152;
-      etaminMinus =-5.205;//event select
-      etamax =5.205;//event select
-      minXiSD=1e-6;
+        Etabnd = 5.205;//Max Eta for CMS
+        //cmseta = 6.6;//Max Eta for CMS
+        etamin =3.152;
+        //etamax =4.889;//event select
+        etamaxMinus =-3.152;
+        etaminMinus =-5.205;//event select
+        etamax =5.205;//event select
+        minXiSD=1e-6;
 	    
 	    
       // event 
@@ -472,7 +472,7 @@ void  EnergyFlow_DetLevel_TreeProducer_HFAND_QGSJetII_3p8Tesla()
 				
 		XYZTVector caltwr = (*CaloTowersp4_)[cal];
 		selcetetabin=getBin(caltwr.Eta(),EtaBins,nEtaBins);
-		if(abs(caltwr.Eta()) >=etamin && abs(caltwr.Eta()) <=Etabnd &&  caltwr.E()*Norm > NoiseCut ) HCALTowerEtaSums[selcetetabin]= HCALTowerEtaSums[selcetetabin] + (caltwr.E())*Norm;//HF MC Norm
+		if(abs(caltwr.Eta()) >=etamin && abs(caltwr.Eta()) <=Etabnd && caltwr.E()*Norm > NoiseCut) HCALTowerEtaSums[selcetetabin]= HCALTowerEtaSums[selcetetabin] + (caltwr.E())*Norm;//HF MC Norm
 		else HCALTowerEtaSums[selcetetabin]= HCALTowerEtaSums[selcetetabin] + (caltwr.E());
 	      }
 			    
@@ -484,10 +484,10 @@ void  EnergyFlow_DetLevel_TreeProducer_HFAND_QGSJetII_3p8Tesla()
 			    
 		// if(pfcand.E() > 10.) {
 		//cout <<"event "<< ev <<" PFCandidates "<<PFCandidatesp4_->size()<<endl; 
-              selcetetabin=getBin(pfcand.Eta(),EtaBins, nEtaBins);
-              if(abs(pfcand.Eta()) >=etamin && abs(pfcand.Eta()) <=Etabnd) PFCandEtaSums[selcetetabin]= PFCandEtaSums[selcetetabin] + pfcand.E()*Norm;
-              else PFCandEtaSums[selcetetabin]= PFCandEtaSums[selcetetabin] + pfcand.E();
-		//cout<<" eta "<<pfcand.Eta()<<" bin "<<selcetetabin<<" energy " << pfcand.E() <<" total PF energy "<<PFCandEtaSums[selcetetabin]<<endl;
+        selcetetabin=getBin(pfcand.Eta(),EtaBins, nEtaBins);
+        if(abs(pfcand.Eta()) >=etamin && abs(pfcand.Eta()) <=Etabnd) PFCandEtaSums[selcetetabin]= PFCandEtaSums[selcetetabin] + pfcand.E()*Norm;
+        else PFCandEtaSums[selcetetabin]= PFCandEtaSums[selcetetabin] + pfcand.E();
+        //cout<<" eta "<<pfcand.Eta()<<" bin "<<selcetetabin<<" energy " << pfcand.E() <<" total PF energy "<<PFCandEtaSums[selcetetabin]<<endl;
 		// }
 	      }//PFCand
 			    
@@ -569,9 +569,9 @@ void  EnergyFlow_DetLevel_TreeProducer_HFAND_QGSJetII_3p8Tesla()
 		HCALTower.push_back(HCALTowerEtaSums[k]);
                 //CastorTower.push_back(CastorTowerEtaSums[k]);
 		//totenergycalotower = HCALTowerEtaSums[k]+CastorTowerEtaSums[k];
-		//CaloTower.push_back(totenergycalotower);
+                //CaloTower.push_back(totenergycalotower);
                 CaloTower.push_back(HCALTowerEtaSums[k]);
-		hcalPFClustersCorrEnergy.push_back(PFClustersHCALEtaSums[k]); 
+                hcalPFClustersCorrEnergy.push_back(PFClustersHCALEtaSums[k]);
 		ecalPFClustersCorrEnergy.push_back(PFClustersECALEtaSums[k]);
 		HFPFClustersCorrEnergy.push_back(PFClustersHFEtaSums[k]);
 		hcalPFClustersRawEnergy.push_back(PFClustersHCALEtaSumsRaw[k]);

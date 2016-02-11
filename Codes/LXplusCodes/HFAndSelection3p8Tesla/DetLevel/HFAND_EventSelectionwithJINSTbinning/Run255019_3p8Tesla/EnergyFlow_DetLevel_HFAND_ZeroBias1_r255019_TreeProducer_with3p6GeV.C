@@ -49,8 +49,7 @@ int getBin(float x, float boundaries[],int b);
 
 
 //void  EnergyFlow_DetLevel_TreeProducer(int FileNumber=0)
-void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r254989_TreeProducer_with5p5GeV()
-
+void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r255019_TreeProducer_with3p6GeV()
 {
   gROOT->ProcessLine("#include <vector>"); 
   //gROOT->ProcessLine(".L MC.C+");
@@ -119,7 +118,7 @@ void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r254989_TreeProducer_with5p5GeV()
   for (int f=0; f<ftyp; f++){
     //for (int f=FileNumber; f<FileNumber+1; f++){
     //----------------------Creating tree for output--------------//
-    sprintf(title,"EFlow_DetLevel_%s_HFAND_r254989_tree_3p8Tesla_with5p5GeV.root",readfilesname.c_str());
+    sprintf(title,"EFlow_DetLevel_%s_HFAND_r255019_tree_3p8Tesla_with3p6GeV.root",readfilesname.c_str());
     fOutFile[f]= new TFile(title,"RECREATE");
     //sprintf(title,"%s",fname.c_str());
     sprintf(title,"EFlow");
@@ -298,7 +297,7 @@ void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r254989_TreeProducer_with5p5GeV()
       // ----------------------- Cut-------------------------//
       lumimin =97;
       lumimax =311;
-      emin = 5.5;
+      emin = 3.6;
       NoiseCut = 4.;
         Etabnd = 5.205;//Max Eta for CMS
         //cmseta = 6.6;//Max Eta for CMS
@@ -395,7 +394,7 @@ void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r254989_TreeProducer_with5p5GeV()
 	LumiCut=false;
 	bxCut=false;
 			    
-	if (filetype =="DATA" && run==254989) RunCut=true;
+	if (filetype =="DATA" && run==255019) RunCut=true;
 	if(filetype =="MC") RunCut =true;// for MC
 		
 	// ----------------------- fat bunch ------------------//
@@ -484,10 +483,10 @@ void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r254989_TreeProducer_with5p5GeV()
 			    
 		// if(pfcand.E() > 10.) {
 		//cout <<"event "<< ev <<" PFCandidates "<<PFCandidatesp4_->size()<<endl; 
-        selcetetabin=getBin(pfcand.Eta(),EtaBins, nEtaBins);
-        if(abs(pfcand.Eta()) >=etamin && abs(pfcand.Eta()) <=Etabnd) PFCandEtaSums[selcetetabin]= PFCandEtaSums[selcetetabin] + pfcand.E()*Norm;
-        else PFCandEtaSums[selcetetabin]= PFCandEtaSums[selcetetabin] + pfcand.E();
-        //cout<<" eta "<<pfcand.Eta()<<" bin "<<selcetetabin<<" energy " << pfcand.E() <<" total PF energy "<<PFCandEtaSums[selcetetabin]<<endl;
+              selcetetabin=getBin(pfcand.Eta(),EtaBins, nEtaBins);
+              if(abs(pfcand.Eta()) >=etamin && abs(pfcand.Eta()) <=Etabnd) PFCandEtaSums[selcetetabin]= PFCandEtaSums[selcetetabin] + pfcand.E()*Norm;
+              else PFCandEtaSums[selcetetabin]= PFCandEtaSums[selcetetabin] + pfcand.E();
+		//cout<<" eta "<<pfcand.Eta()<<" bin "<<selcetetabin<<" energy " << pfcand.E() <<" total PF energy "<<PFCandEtaSums[selcetetabin]<<endl;
 		// }
 	      }//PFCand
 			    

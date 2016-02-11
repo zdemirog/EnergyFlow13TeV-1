@@ -49,7 +49,7 @@ int getBin(float x, float boundaries[],int b);
 
 
 //void  EnergyFlow_DetLevel_TreeProducer(int FileNumber=0)
-void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r255031_TreeProducer_with5GeV()
+void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r255029_TreeProducer_with4p4GeV()
 {
   gROOT->ProcessLine("#include <vector>"); 
   //gROOT->ProcessLine(".L MC.C+");
@@ -118,7 +118,7 @@ void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r255031_TreeProducer_with5GeV()
   for (int f=0; f<ftyp; f++){
     //for (int f=FileNumber; f<FileNumber+1; f++){
     //----------------------Creating tree for output--------------//
-    sprintf(title,"EFlow_DetLevel_%s_HFAND_r255031_tree_3p8Tesla_with5GeV.root",readfilesname.c_str());
+    sprintf(title,"EFlow_DetLevel_%s_HFAND_r255029_tree_3p8Tesla_with4p4GeV.root",readfilesname.c_str());
     fOutFile[f]= new TFile(title,"RECREATE");
     //sprintf(title,"%s",fname.c_str());
     sprintf(title,"EFlow");
@@ -297,7 +297,7 @@ void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r255031_TreeProducer_with5GeV()
       // ----------------------- Cut-------------------------//
       lumimin =97;
       lumimax =311;
-      emin = 5.;
+      emin = 4.4;
       NoiseCut = 4.;
         Etabnd = 5.205;//Max Eta for CMS
         //cmseta = 6.6;//Max Eta for CMS
@@ -394,7 +394,7 @@ void  EnergyFlow_DetLevel_HFAND_ZeroBias1_r255031_TreeProducer_with5GeV()
 	LumiCut=false;
 	bxCut=false;
 			    
-	if (filetype =="DATA" && run==255031) RunCut=true;
+	if (filetype =="DATA" && run==255029) RunCut=true;
 	if(filetype =="MC") RunCut =true;// for MC
 		
 	// ----------------------- fat bunch ------------------//
