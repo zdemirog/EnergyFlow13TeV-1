@@ -119,7 +119,7 @@ void  EnergyFlow_DetLevel_DataZeroBias1AllBx_TreeProducer()
     for (int f=0; f<ftyp; f++){
 	//for (int f=FileNumber; f<FileNumber+1; f++){
 	//----------------------Creating tree for output--------------//
-	sprintf(title,"EFlow_DetLevel_%s_AllCollect_LastRing5p205_NoiseCut4GeV_WithNewEta.root",readfilesname.c_str());
+	sprintf(title,"EFlow_DetLevel_%s_AllCollect_LastRing5p205_NoiseCut4GeV_WithNewEta_cltwrNewCond.root",readfilesname.c_str());
 	fOutFile[f]= new TFile(title,"RECREATE");
 	//sprintf(title,"%s",fname.c_str());
 	sprintf(title,"EFlow");
@@ -460,8 +460,18 @@ void  EnergyFlow_DetLevel_DataZeroBias1AllBx_TreeProducer()
 				
 				XYZTVector caltwr = (*CaloTowersp4_)[cal];
 				selcetetabin=getBin(caltwr.Eta(),EtaBins,nEtaBins);
-                          	if(abs(caltwr.Eta()) >=etamin && abs(caltwr.Eta()) <=Etabnd && caltwr.E()*Norm > NoiseCut) HCALTowerEtaSums[selcetetabin]= HCALTowerEtaSums[selcetetabin] + (caltwr.E())*Norm;//HF MC Norm
-				else HCALTowerEtaSums[selcetetabin]= HCALTowerEtaSums[selcetetabin] + (caltwr.E());
+                    
+                    if(abs(caltwr.Eta()) >=etamin && abs(caltwr.Eta()) <=Etabnd) {
+                        if(caltwr.E()*Norm > NoiseCut) {
+                            HCALTowerEtaSums[selcetetabin]= HCALTowerEtaSums[selcetetabin] + (caltwr.E())*Norm;//HF MC Norm
+                            //cout << " energy "<<caltwr.E()<<endl;
+                        }//HF
+                    }
+                    // out HF eta
+                    else {
+                        HCALTowerEtaSums[selcetetabin]= HCALTowerEtaSums[selcetetabin] + (caltwr.E());
+                    }
+                    
 			    }
 			    
 			    // // -----------------------  PF cand  -----------------------//

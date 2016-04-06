@@ -119,7 +119,7 @@ void  EnergyFlow_DetLevel_Herwig0T_AllCollect_TreeProducer()
     for (int f=0; f<ftyp; f++){
 	//for (int f=FileNumber; f<FileNumber+1; f++){
 	//----------------------Creating tree for output--------------//
-	sprintf(title,"EFlow_DetLevel_%s_AllCollect_LastRing5p205_NoiseCut4GeV_WithNewEta.root",readfilesname.c_str());
+	sprintf(title,"EFlow_DetLevel_%s_AllCollect_LastRing5p205_NoiseCut4GeV_WithNewEta_Emin5p5GeV.root",readfilesname.c_str());
 	fOutFile[f]= new TFile(title,"RECREATE");
 	//sprintf(title,"%s",fname.c_str());
 	sprintf(title,"EFlow");
@@ -297,7 +297,7 @@ void  EnergyFlow_DetLevel_Herwig0T_AllCollect_TreeProducer()
             // ----------------------- Cut-------------------------//
             lumimin =97;
             lumimax =311;
-            emin = 5.;
+            emin = 5.5;
             NoiseCut = 4.;
             Etabnd = 5.205;//Max Eta for CMS
             cmseta = 6.6;//Max Eta for CMS
