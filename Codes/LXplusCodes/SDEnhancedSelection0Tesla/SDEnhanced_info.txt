@@ -1,0 +1,122 @@
+Data :
+Event Selection : SD Enhanced : Tower its energy above 5 GeV have to be in only one of them (HFMinus - HFPlus)
+
+        lumimin =97;
+	    lumimax =311;
+	    emin = 5.;
+        NoiseCut = 4.;
+	    Etabnd = 5.205;//Max Eta for CMS
+        cmseta = 6.6;//Max Eta for CMS
+	    etamin =3.152;
+	    //etamax =4.889;//event select
+        etamax =5.205;//event select
+	    etamaxMinus =-3.152;
+	    etaminMinus =-5.205;//event select
+	    minXiSD=1e-6;
+
+Cut for Data 
+RunCut = 247324
+LumiCut = 97 -311 Recommendation from Ralf
+Trigger = trgZeroBias ==1
+
+SDEnhanced:
+=================================================================================
+			//-- Event Selection for Det Level --//
+                
+                //------------ HF_AND ------------//
+                //----------HF Minus-------//
+                for (unsigned long cal=0; cal<CaloTowersp4_->size(); cal++){
+                    
+                    XYZTVector caltwr = (*CaloTowersp4_)[cal];
+                    
+                    if((caltwr.Eta()>=etaminMinus && caltwr.Eta()<=etamaxMinus) && ((caltwr.E())*Norm) > emin) {
+                        
+                        EnergyCutTowerMinus=true;
+                    }
+                }
+                
+                
+                //----------HF Plus-------//
+                for (unsigned long cal=0; cal<CaloTowersp4_->size(); cal++){
+                    
+                    XYZTVector caltwr = (*CaloTowersp4_)[cal];
+                    
+                    if((caltwr.Eta()>=etamin && caltwr.Eta()<=etamax) && ((caltwr.E())*Norm) > emin) {
+                        
+                        EnergyCutTowerPlus=true;
+                    }
+                }
+                
+                
+                
+                if ((EnergyCutTowerMinus && !EnergyCutTowerPlus) || (!EnergyCutTowerMinus && EnergyCutTowerPlus)){
+                    // Gen Level Event selection for Detlevel
+….
+…
+=================================================================================
+
+
+MC Det Level
+
+Same Conditions with Data 
+
+============================================================================
+
+MC Gen Level
+
+Xi = 1e-6
+
+Condition for Selection (From Sercan)
+
+if (filetype =="MC" && ( (Xix > minXiSD && Xiy < minXiSD) || (Xix < minXiSD && Xiy > minXiSD) )) XiCutGen=true;
+
+		
+        if(XiCutGen){
+
+….
+…
+….
+
+=================================================================================
+
+MC Gen Level v2  (From Benoit)
+
+We added two new variables as to bools
+
+            StableParticleEnergyCutMinus=false;
+            StableParticleEnergyCutPlus=false;
+
+And we changed the Code that original GeN code.
+
+       
+            for (unsigned long gst=0; gst<genParticlesp4_->size(); gst++){
+                XYZTVector gen = (*genParticlesp4_)[gst];
+                if(filetype =="MC" && genParticlesstatus->at(gst) ==1){
+                    
+                    //----------HF Minus-------//
+                    if((gen.Eta()>=etaminMinus && gen.Eta()<=etamaxMinus) && gen.E() > emin) {
+                        StableParticleEnergyCutMinus=true;
+                    }
+                    
+                    
+                    //----------HF Plus-------//
+                    if((gen.Eta()>=etamin && gen.Eta()<=etamax) && gen.E() > emin) {
+                        StableParticleEnergyCutPlus=true;
+                    }
+                }
+            }
+            
+
+            
+        //--------------------XiCut-----------------------//
+		//if (filetype =="MC" && ( (Xix > minXiSD && Xiy < minXiSD) || (Xix < minXiSD && Xiy > minXiSD) )) XiCutGen=true;
+
+		
+        if((StableParticleEnergyCutPlus && !StableParticleEnergyCutMinus) || (!StableParticleEnergyCutPlus && StableParticleEnergyCutMinus)){
+
+=======================================================
+
+
+
+
+
