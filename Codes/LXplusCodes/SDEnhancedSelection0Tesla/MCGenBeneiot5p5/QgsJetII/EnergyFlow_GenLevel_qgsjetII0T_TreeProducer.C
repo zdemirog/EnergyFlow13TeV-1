@@ -318,7 +318,7 @@ void  EnergyFlow_GenLevel_qgsjetII0T_TreeProducer()
                     
                 } ////Hadron Cut ends
                 // -- Gen level apply only XiSD cut --//
-                if((abs(gen.Eta())<= Etabnd)  ) {
+                if((abs(gen.Eta())<= cmseta)  ) {
                     
                     selcetetabin=getBin(gen.Eta(),EtaBins, nEtaBins);
                     GenEtaSums[selcetetabin]= GenEtaSums[selcetetabin] + gen.E();
