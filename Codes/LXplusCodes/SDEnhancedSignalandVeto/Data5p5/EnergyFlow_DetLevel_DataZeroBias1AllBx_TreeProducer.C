@@ -494,13 +494,13 @@ void  EnergyFlow_DetLevel_DataZeroBias1AllBx_TreeProducer()
 		if(abs(caltwr.Eta()) >=etamin && abs(caltwr.Eta()) <=Etabnd) {
 		  if(caltwr.E()*Norm > NoiseCut) {
 		    
-		    if(EnergyCutTowerMinus || !EnergyCutTowerPlus ){
+		    if(EnergyCutTowerMinus && !EnergyCutTowerPlus ){
 		      if (caltwr.Eta() < 0 ) SDHFSignalTowerEtaSums[selcetetabin]= SDHFSignalTowerEtaSums[selcetetabin] + (caltwr.E())*Norm;//HF MC Norm
               if (caltwr.Eta() > 0 ) SDHFVetoTowerEtaSums[selcetetabin]= SDHFVetoTowerEtaSums[selcetetabin] + (caltwr.E())*Norm;//HF MC Norm
                 
 		    }
 		    
-		    if(!EnergyCutTowerMinus || EnergyCutTowerPlus ){
+		    if(!EnergyCutTowerMinus && EnergyCutTowerPlus ){
               if (caltwr.Eta() > 0 ) SDHFSignalTowerEtaSums[selcetetabin]= SDHFSignalTowerEtaSums[selcetetabin] + (caltwr.E())*Norm;//HF MC Norm
 		      if (caltwr.Eta() < 0 ) SDHFVetoTowerEtaSums[selcetetabin]= SDHFVetoTowerEtaSums[selcetetabin] + (caltwr.E())*Norm;//HF MC Norm
 		    }

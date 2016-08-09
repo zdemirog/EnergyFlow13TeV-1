@@ -333,12 +333,12 @@ void  EnergyFlow_GenLevel_TuneMonash0T_TreeProducer()
                     GenEtaSums[selcetetabin]= GenEtaSums[selcetetabin] + gen.E();
                    
                    
-                    if(StableParticleEnergyCutPlus || !StableParticleEnergyCutMinus ){
+                    if(StableParticleEnergyCutPlus && !StableParticleEnergyCutMinus ){
                         if (gen.Eta() > 0) SignalGenEtaSums[selcetetabin]= SignalGenEtaSums[selcetetabin] + gen.E();//
                         if (gen.Eta() < 0) SignalVetoGenEtaSums[selcetetabin]= SignalVetoGenEtaSums[selcetetabin] + gen.E();//
                     }
                 
-                    if(!StableParticleEnergyCutPlus || StableParticleEnergyCutMinus ){
+                    if(!StableParticleEnergyCutPlus && StableParticleEnergyCutMinus ){
                         if (gen.Eta() < 0) SignalGenEtaSums[selcetetabin]= SignalGenEtaSums[selcetetabin] + gen.E();//
                         if (gen.Eta() > 0) SignalVetoGenEtaSums[selcetetabin]= SignalVetoGenEtaSums[selcetetabin] + gen.E();//
                     }
